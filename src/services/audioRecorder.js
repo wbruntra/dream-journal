@@ -4,6 +4,11 @@
  * and Web Audio API real-time frequency analysis for visualizations.
  */
 
+// Speech doesn't need music-grade bitrate: Opus at 24 kbps mono is well above
+// what's needed for clearly intelligible voice, and keeps a 5-minute dream
+// recording to roughly 1MB instead of the ~5MB a default 128kbps encode would use.
+export const VOICE_BITRATE = 24000;
+
 export function getBestMimeType() {
   if (typeof window === 'undefined' || typeof window.MediaRecorder === 'undefined') {
     return '';
@@ -59,12 +64,15 @@ export class AudioRecorder {
     this.audioChunks = [];
     this.totalPausedDuration = 0;
 
-    // Request audio stream with echo cancellation and noise suppression
+    // Request audio stream with echo cancellation and noise suppression.
+    // Mono is plenty for a single speaker and halves the raw PCM the encoder
+    // has to work with before it even gets to bitrate.
     this.stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         echoCancellation: true,
         noiseSuppression: true,
-        autoGainControl: true
+        autoGainControl: true,
+        channelCount: 1
       }
     });
 
@@ -87,7 +95,10 @@ export class AudioRecorder {
     }
 
     this.mimeType = getBestMimeType();
-    const options = this.mimeType ? { mimeType: this.mimeType } : {};
+    const options = {
+      ...(this.mimeType ? { mimeType: this.mimeType } : {}),
+      audioBitsPerSecond: VOICE_BITRATE
+    };
 
     try {
       this.mediaRecorder = new MediaRecorder(this.stream, options);
