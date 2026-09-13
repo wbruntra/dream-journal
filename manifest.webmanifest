@@ -1,0 +1,42 @@
+{
+  "name": "Dream Journal",
+  "short_name": "Dreams",
+  "description": "Voice-first dream journal to instantly record, remember, and reflect on your dreams.",
+  "start_url": "/dream-journal/",
+  "scope": "/dream-journal/",
+  "display": "standalone",
+  "background_color": "#0c0d16",
+  "theme_color": "#0c0d16",
+  "orientation": "portrait-primary",
+  "lang": "en",
+  "categories": ["lifestyle", "utilities"],
+  "icons": [
+    {
+      "src": "/dream-journal/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/dream-journal/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/dream-journal/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Record Dream",
+      "short_name": "Record",
+      "description": "Quickly start recording a new dream memo",
+      "url": "/dream-journal/?action=record",
+      "icons": [{ "src": "/dream-journal/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

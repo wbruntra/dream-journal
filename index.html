@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Dream Journal</title>
+    <meta name="description" content="Voice-first dream journal to quickly record, remember, and reflect on your dreams." />
+    
+    <!-- PWA & Mobile Icons & Colors -->
+    <meta name="theme-color" content="#0c0d16" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Dream Journal" />
+    
+    <link rel="icon" type="image/svg+xml" href="/dream-journal/icon.svg" />
+    <link rel="apple-touch-icon" href="/dream-journal/apple-touch-icon.png" />
+    <link rel="manifest" href="/dream-journal/manifest.webmanifest" />
+
+    <!-- Google Fonts for celestial aesthetic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/dream-journal/assets/index-BO3btaYJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/dream-journal/assets/index-B3b8nFIU.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // Register service worker if supported
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/dream-journal/sw.js')
+            .then((reg) => console.log('SW registered successfully:', reg.scope))
+            .catch((err) => console.warn('SW registration failed:', err));
+        });
+      }
+    </script>
+  </body>
+</html>
