@@ -4,10 +4,10 @@
  * and Web Audio API real-time frequency analysis for visualizations.
  */
 
-// Speech doesn't need music-grade bitrate: Opus at 24 kbps mono is well above
-// what's needed for clearly intelligible voice, and keeps a 5-minute dream
-// recording to roughly 1MB instead of the ~5MB a default 128kbps encode would use.
-export const VOICE_BITRATE = 24000;
+// Speech doesn't need music-grade bitrate: Opus at 64 kbps mono is a comfortable
+// margin above what's needed for clear voice, and keeps a 5-minute dream
+// recording to roughly 2.4MB instead of the ~5MB a default 128kbps encode would use.
+export const VOICE_BITRATE = 64000;
 
 export function getBestMimeType() {
   if (typeof window === 'undefined' || typeof window.MediaRecorder === 'undefined') {
