@@ -106,7 +106,8 @@ export function App() {
       const matchesSearch =
         !query ||
         dream.title?.toLowerCase().includes(query) ||
-        dream.notes?.toLowerCase().includes(query);
+        dream.notes?.toLowerCase().includes(query) ||
+        dream.transcript?.toLowerCase().includes(query);
       return matchesMood && matchesSearch;
     });
   }, [dreams, moodFilter, searchQuery]);

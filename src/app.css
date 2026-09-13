@@ -360,6 +360,19 @@
   outline: 2px solid var(--accent-purple);
 }
 
+.dream-card-thumbnail-wrap {
+  margin: -16px -18px 2px;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+
+.dream-card-thumbnail {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
 .dream-card-header {
   display: flex;
   flex-direction: column;
@@ -1256,6 +1269,21 @@
   border-bottom-color: var(--accent-purple);
 }
 
+.detail-illustration-wrap {
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border-glass);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.detail-illustration-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
 .detail-player-container {
   display: flex;
   flex-direction: column;
@@ -1332,6 +1360,43 @@
   border-radius: 14px;
 }
 
+.enhancement-card.column {
+  flex-direction: column;
+}
+
+.enhancement-card-row {
+  display: flex;
+  gap: 12px;
+}
+
+.model-tag {
+  font-family: var(--mono, monospace);
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 1px 5px;
+  color: #cbd5e1;
+  white-space: nowrap;
+}
+
+.transcript-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 10px 12px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.ai-error-text {
+  font-size: 12.5px;
+  color: #f87171;
+}
+
 .card-icon-tag {
   font-size: 24px;
   flex-shrink: 0;
@@ -1365,6 +1430,12 @@
   background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.planned-pill.active {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
 }
 
 .card-desc {

@@ -47,6 +47,7 @@ export function SettingsModal({ isOpen, onClose, installPromptEvent, onTriggerIn
       durationSeconds: d.duration,
       mood: d.mood,
       notes: d.notes,
+      transcript: d.transcript,
       mimeType: d.mimeType
     }));
 
@@ -139,8 +140,10 @@ export function SettingsModal({ isOpen, onClose, installPromptEvent, onTriggerIn
                 <span class="stat-label">Recorded Dreams</span>
               </div>
               <div class="stat-box">
-                <span class="stat-number">{formatBytes(stats?.totalAudioBytes)}</span>
-                <span class="stat-label">Audio Used</span>
+                <span class="stat-number">
+                  {formatBytes((stats?.totalAudioBytes || 0) + (stats?.totalImageBytes || 0))}
+                </span>
+                <span class="stat-label">Media Used</span>
               </div>
               <div class="stat-box">
                 <span class="stat-number">
@@ -177,10 +180,10 @@ export function SettingsModal({ isOpen, onClose, installPromptEvent, onTriggerIn
               <div>
                 <div class="card-title-row">
                   <h3 class="settings-card-title">OpenRouter API Key</h3>
-                  <span class="planned-pill">Future Enhancements</span>
+                  <span class="planned-pill active">AI Features</span>
                 </div>
                 <p class="settings-card-subtitle">
-                  Configure your key for upcoming AI transcription and dream illustration features.
+                  Powers AI transcription and dream illustration generation. Get a key at openrouter.ai.
                 </p>
               </div>
             </div>
@@ -228,7 +231,7 @@ export function SettingsModal({ isOpen, onClose, installPromptEvent, onTriggerIn
             </div>
 
             <p class="privacy-note">
-              🔒 <strong>Privacy first:</strong> Your key is stored solely on your local device. It will be used in future versions to call OpenRouter for speech-to-text transcription and dream scene art.
+              🔒 <strong>Privacy first:</strong> Your key is stored solely on your local device and sent directly to OpenRouter when you transcribe a dream or generate an illustration.
             </p>
           </section>
 

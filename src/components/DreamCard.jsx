@@ -1,10 +1,21 @@
-import { useState } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import { AudioPlayer } from './AudioPlayer';
 import { formatDuration, formatRelativeDate, getMoodDetails, downloadBlob } from '../utils/formatters';
 
 export function DreamCard({ dream, onSelect, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
   const mood = getMoodDetails(dream.mood);
+
+  useEffect(() => {
+    if (!dream.imageBlob) {
+      setThumbnailUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(dream.imageBlob);
+    setThumbnailUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [dream.imageBlob]);
 
   const handleDownload = (e) => {
     e.stopPropagation();
@@ -33,6 +44,12 @@ export function DreamCard({ dream, onSelect, onDelete }) {
       role="button"
       aria-label={`Open details for dream: ${dream.title}`}
     >
+      {thumbnailUrl && (
+        <div class="dream-card-thumbnail-wrap">
+          <img src={thumbnailUrl} alt="" class="dream-card-thumbnail" />
+        </div>
+      )}
+
       <div class="dream-card-header">
         <div class="card-title-row">
           <span

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'preact/hooks';
 import { AudioPlayer } from './AudioPlayer';
 import { formatDuration, formatRelativeDate, MOODS, getMoodDetails, downloadBlob } from '../utils/formatters';
+import { hasApiKey, transcribeDreamAudio, illustrateDream } from '../services/openrouter';
 
 export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, onOpenSettings }) {
   if (!isOpen || !dream) return null;
@@ -12,13 +13,71 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
   const [hasChanges, setHasChanges] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcribeError, setTranscribeError] = useState(null);
+  const [isIllustrating, setIsIllustrating] = useState(false);
+  const [illustrateError, setIllustrateError] = useState(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+
   useEffect(() => {
     setTitle(dream.title || '');
     setNotes(dream.notes || '');
     setMood(dream.mood || 'mystical');
     setHasChanges(false);
     setConfirmDelete(false);
+    setTranscribeError(null);
+    setIllustrateError(null);
   }, [dream]);
+
+  // Manage Blob -> Object URL lifecycle for the illustration preview
+  useEffect(() => {
+    if (!dream.imageBlob) {
+      setImagePreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(dream.imageBlob);
+    setImagePreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [dream.imageBlob]);
+
+  const handleTranscribe = async () => {
+    if (!hasApiKey()) {
+      onClose();
+      onOpenSettings();
+      return;
+    }
+    setIsTranscribing(true);
+    setTranscribeError(null);
+    try {
+      const transcript = await transcribeDreamAudio(dream.audioBlob, dream.mimeType);
+      await onUpdate(dream.id, { transcript });
+    } catch (err) {
+      console.error('Transcription failed:', err);
+      setTranscribeError(err.message || 'Transcription failed.');
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const handleIllustrate = async () => {
+    if (!hasApiKey()) {
+      onClose();
+      onOpenSettings();
+      return;
+    }
+    setIsIllustrating(true);
+    setIllustrateError(null);
+    try {
+      const dreamText = dream.transcript || dream.notes;
+      const { imageBlob } = await illustrateDream(dreamText);
+      await onUpdate(dream.id, { imageBlob });
+    } catch (err) {
+      console.error('Illustration generation failed:', err);
+      setIllustrateError(err.message || 'Illustration generation failed.');
+    } finally {
+      setIsIllustrating(false);
+    }
+  };
 
   const handleSaveEdit = async () => {
     await onUpdate(dream.id, {
@@ -85,6 +144,13 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
               placeholder="Dream Title"
             />
           </div>
+
+          {/* AI Illustration */}
+          {imagePreviewUrl && (
+            <div class="detail-illustration-wrap">
+              <img src={imagePreviewUrl} alt={`AI illustration of: ${dream.title}`} class="detail-illustration-img" />
+            </div>
+          )}
 
           {/* Expanded Audio Player */}
           <div class="detail-player-container">
@@ -153,10 +219,10 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
             </div>
           )}
 
-          {/* Longer-term Enhancements Cards (OpenRouter integration preview) */}
+          {/* AI Enhancements (OpenRouter) */}
           <div class="enhancements-section">
             <h4 class="enhancements-heading">
-              <span>✨ Future Enhancements</span>
+              <span>✨ AI Enhancements</span>
               <button
                 type="button"
                 class="settings-shortcut-btn"
@@ -165,37 +231,83 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
                   onOpenSettings();
                 }}
               >
-                Setup OpenRouter Key
+                {hasApiKey() ? 'Manage OpenRouter Key' : 'Setup OpenRouter Key'}
               </button>
             </h4>
 
             <div class="enhancement-cards-grid">
-              {/* Transcription Preview */}
-              <div class="enhancement-card">
-                <div class="card-icon-tag">🎙️</div>
-                <div class="card-text">
-                  <div class="card-header-line">
-                    <span class="card-title">AI Voice Transcription</span>
-                    <span class="planned-pill">Coming Soon</span>
+              {/* Transcription */}
+              <div class="enhancement-card column">
+                <div class="enhancement-card-row">
+                  <div class="card-icon-tag">🎙️</div>
+                  <div class="card-text">
+                    <div class="card-header-line">
+                      <span class="card-title">AI Voice Transcription</span>
+                      {dream.transcript && <span class="planned-pill active">Done</span>}
+                    </div>
+                    <p class="card-desc">
+                      Transcribe your voice memo into searchable text using {' '}
+                      <code class="model-tag">microsoft/mai-transcribe-2</code>.
+                    </p>
                   </div>
-                  <p class="card-desc">
-                    In the next update, your recorded dream memo will be automatically transcribed into searchable text via OpenRouter.
-                  </p>
                 </div>
+
+                {dream.transcript && (
+                  <p class="transcript-text">{dream.transcript}</p>
+                )}
+
+                {transcribeError && <p class="ai-error-text">{transcribeError}</p>}
+
+                <button
+                  type="button"
+                  class="btn-secondary outline small full-width"
+                  onClick={handleTranscribe}
+                  disabled={isTranscribing || !dream.audioBlob}
+                >
+                  {isTranscribing
+                    ? 'Transcribing…'
+                    : dream.transcript
+                      ? 'Re-transcribe'
+                      : 'Transcribe with AI'}
+                </button>
               </div>
 
-              {/* Illustration Preview */}
-              <div class="enhancement-card">
-                <div class="card-icon-tag">🎨</div>
-                <div class="card-text">
-                  <div class="card-header-line">
-                    <span class="card-title">Dream Scene Illustration</span>
-                    <span class="planned-pill">Coming Soon</span>
+              {/* Illustration */}
+              <div class="enhancement-card column">
+                <div class="enhancement-card-row">
+                  <div class="card-icon-tag">🎨</div>
+                  <div class="card-text">
+                    <div class="card-header-line">
+                      <span class="card-title">Dream Scene Illustration</span>
+                      {dream.imageBlob && <span class="planned-pill active">Done</span>}
+                    </div>
+                    <p class="card-desc">
+                      Paints an evocative scene from your dream via {' '}
+                      <code class="model-tag">~openai/gpt-luna-latest</code> and{' '}
+                      <code class="model-tag">openai/gpt-image-2.5-sunburst</code>.
+                    </p>
                   </div>
-                  <p class="card-desc">
-                    AI will paint an evocative illustration matching the atmosphere, symbols, and emotions in your dream.
-                  </p>
                 </div>
+
+                {illustrateError && <p class="ai-error-text">{illustrateError}</p>}
+
+                <button
+                  type="button"
+                  class="btn-secondary outline small full-width"
+                  onClick={handleIllustrate}
+                  disabled={isIllustrating || (!dream.transcript && !dream.notes)}
+                  title={
+                    !dream.transcript && !dream.notes
+                      ? 'Transcribe the dream or add notes first'
+                      : undefined
+                  }
+                >
+                  {isIllustrating
+                    ? 'Painting…'
+                    : dream.imageBlob
+                      ? 'Regenerate Illustration'
+                      : 'Generate Illustration'}
+                </button>
               </div>
             </div>
           </div>

@@ -88,10 +88,14 @@ export async function getStorageStats() {
   const totalAudioBytes = dreams.reduce((acc, d) => {
     return acc + (d.audioBlob ? d.audioBlob.size || 0 : 0);
   }, 0);
+  const totalImageBytes = dreams.reduce((acc, d) => {
+    return acc + (d.imageBlob ? d.imageBlob.size || 0 : 0);
+  }, 0);
 
   return {
     totalDreams: dreams.length,
     totalAudioBytes,
+    totalImageBytes,
     usageBytes,
     quotaBytes,
     isPersisted
@@ -118,7 +122,7 @@ export async function saveDream(dream) {
       tags: Array.isArray(dream.tags) ? dream.tags : [],
       notes: dream.notes || '',
       transcript: dream.transcript || null,
-      imageUrl: dream.imageUrl || null
+      imageBlob: dream.imageBlob || null // AI-generated illustration, stored as a WebP Blob
     };
 
     const req = store.put(record);
