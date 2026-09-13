@@ -45,3 +45,5 @@ npm run deploy
 ```
 
 This builds the app and pushes the `dist/` folder to the `gh-pages` branch.
+
+Live at https://wbruntra.github.io/dream-journal/
