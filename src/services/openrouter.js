@@ -10,7 +10,7 @@ const TRANSCRIPTION_URL = 'https://openrouter.ai/api/v1/audio/transcriptions';
 const CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const IMAGES_URL = 'https://openrouter.ai/api/v1/images';
 
-const TRANSCRIPTION_MODEL = 'microsoft/mai-transcribe-2';
+const TRANSCRIPTION_MODEL = 'openai/gpt-transcribe';
 const ILLUSTRATION_PROMPT_MODEL = '~openai/gpt-luna-latest';
 const ILLUSTRATION_IMAGE_MODEL = 'openai/gpt-image-2.5-sunburst';
 

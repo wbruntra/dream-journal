@@ -247,7 +247,7 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
                     </div>
                     <p class="card-desc">
                       Transcribe your voice memo into searchable text using {' '}
-                      <code class="model-tag">microsoft/mai-transcribe-2</code>.
+                      <code class="model-tag">openai/gpt-transcribe</code>.
                     </p>
                   </div>
                 </div>
