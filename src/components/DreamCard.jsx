@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'preact/hooks';
 import { AudioPlayer } from './AudioPlayer';
+import { ImageLightbox } from './ImageLightbox';
 import { formatDuration, formatRelativeDate, getMoodDetails, downloadBlob } from '../utils/formatters';
 
 export function DreamCard({ dream, onSelect, onDelete }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
   const mood = getMoodDetails(dream.mood);
 
   useEffect(() => {
@@ -45,9 +47,28 @@ export function DreamCard({ dream, onSelect, onDelete }) {
       aria-label={`Open details for dream: ${dream.title}`}
     >
       {thumbnailUrl && (
-        <div class="dream-card-thumbnail-wrap">
+        <div
+          class="dream-card-thumbnail-wrap"
+          onClick={(e) => {
+            e.stopPropagation();
+            setLightboxOpen(true);
+          }}
+        >
           <img src={thumbnailUrl} alt="" class="dream-card-thumbnail" />
+          <span class="expand-hint-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+          </span>
         </div>
+      )}
+
+      {lightboxOpen && (
+        <ImageLightbox
+          imageUrl={thumbnailUrl}
+          alt={`AI illustration of: ${dream.title}`}
+          onClose={() => setLightboxOpen(false)}
+        />
       )}
 
       <div class="dream-card-header">

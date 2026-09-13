@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { AudioPlayer } from './AudioPlayer';
+import { ImageLightbox } from './ImageLightbox';
 import { formatDuration, formatRelativeDate, MOODS, getMoodDetails, downloadBlob } from '../utils/formatters';
 import { hasApiKey, transcribeDreamAudio, illustrateDream } from '../services/openrouter';
 
@@ -18,6 +19,9 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
   const [isIllustrating, setIsIllustrating] = useState(false);
   const [illustrateError, setIllustrateError] = useState(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  const bodyRef = useRef(null);
 
   useEffect(() => {
     setTitle(dream.title || '');
@@ -71,6 +75,9 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
       const dreamText = dream.transcript || dream.notes;
       const { imageBlob } = await illustrateDream(dreamText);
       await onUpdate(dream.id, { imageBlob });
+      // The illustration renders at the top of the modal, but the button that
+      // triggers it lives further down — scroll up so the result is actually seen.
+      bodyRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       console.error('Illustration generation failed:', err);
       setIllustrateError(err.message || 'Illustration generation failed.');
@@ -130,7 +137,7 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
         </div>
 
         {/* Content Body */}
-        <div class="detail-body">
+        <div class="detail-body" ref={bodyRef}>
           {/* Title Area */}
           <div class="detail-title-section">
             <input
@@ -147,9 +154,22 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
 
           {/* AI Illustration */}
           {imagePreviewUrl && (
-            <div class="detail-illustration-wrap">
+            <div class="detail-illustration-wrap" onClick={() => setLightboxOpen(true)}>
               <img src={imagePreviewUrl} alt={`AI illustration of: ${dream.title}`} class="detail-illustration-img" />
+              <span class="expand-hint-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+              </span>
             </div>
+          )}
+
+          {lightboxOpen && (
+            <ImageLightbox
+              imageUrl={imagePreviewUrl}
+              alt={`AI illustration of: ${dream.title}`}
+              onClose={() => setLightboxOpen(false)}
+            />
           )}
 
           {/* Expanded Audio Player */}
@@ -288,6 +308,13 @@ export function DreamDetailModal({ dream, isOpen, onClose, onUpdate, onDelete, o
                     </p>
                   </div>
                 </div>
+
+                {imagePreviewUrl && (
+                  <div class="inline-illustration-preview" onClick={() => setLightboxOpen(true)}>
+                    <img src={imagePreviewUrl} alt={`AI illustration of: ${dream.title}`} />
+                    <span class="inline-preview-hint">Tap to view full size</span>
+                  </div>
+                )}
 
                 {illustrateError && <p class="ai-error-text">{illustrateError}</p>}
 
